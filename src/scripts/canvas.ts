@@ -1,4 +1,5 @@
 import Card from "./Card";
+import type { CardData } from "../types/cardData";
 
 export default class CanvasHelper {
 	static getEdgePoint(card: { x: number; y: number; width: number; height: number }, otherCard: { x: number; y: number; width: number; height: number }) {
@@ -79,7 +80,7 @@ export default class CanvasHelper {
 		});
 	}
 
-    static drawLinesBetweenCards(ctx: CanvasRenderingContext2D, cardData: { x: number; y: number; width: number; height: number; title: string; text: string; attachedTo: string[] }[]) {
+    static drawLinesBetweenCards(ctx: CanvasRenderingContext2D, cardData: CardData[]) {
 		ctx.strokeStyle = "#333"; // Line color
 		ctx.lineWidth = 2; // Line width
 
@@ -107,5 +108,20 @@ export default class CanvasHelper {
 				}
 			}
 		}
+	}
+
+	static drawCards(canvas: CanvasRenderingContext2D, canvasRef: HTMLCanvasElement, cardData: CardData[]) {
+		if (!canvas || !canvasRef) {
+			console.error("Can't draw");
+			return;
+		}
+
+		canvas.clearRect(0, 0, canvasRef.width, canvasRef.height);
+
+		cardData.forEach((card) => {
+			CanvasHelper.drawCard(canvas, card);
+		});
+
+		CanvasHelper.drawLinesBetweenCards(canvas, cardData);
 	}
 }
