@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import Card from "./Card";
+import Menu from "./Menu";
+import CanvasHelper from "./scripts/canvas";
 import "./App.css";
 
 // define a Card type here
@@ -17,6 +18,7 @@ function App() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [canvas, setCanvas] = useState<CanvasRenderingContext2D | null>(null);
 
+	// Simulate data from API
 	const cardData: CardData[] = [
 		{ x: 50, y: 50, width: 260, height: 360, title: "Card 1", text: "Text 1", attachedTo: [] },
 		{ x: 350, y: 500, width: 260, height: 360, title: "Card 2", text: "Text 2", attachedTo: ["Card 1", "Card 3"] },
@@ -28,15 +30,20 @@ function App() {
 
 	useEffect(() => {
 		if (canvasRef.current) {
-			setCanvas(canvasRef.current.getContext("2d"));
-
-			if (canvas === null) {
-				return;
+			const context = canvasRef.current.getContext("2d");
+			if (context) {
+				setCanvas(context);
+			} else {
+				console.log("Failed to get canvas context");
 			}
+		}
+	}, [canvasRef]);
 
+	useEffect(() => {
+		if (canvas !== null) {
 			init();
 		}
-	}, []);
+	}, [canvas]);
 
 	function init() {
 		if (!canvasRef.current || !canvas) {
@@ -44,7 +51,7 @@ function App() {
 		}
 
 		canvasRef.current.width = window.innerWidth;
-		canvasRef.current.height = window.innerHeight;
+		canvasRef.current.height = window.innerHeight * 0.8;
 
 		drawCards();
 
@@ -93,63 +100,41 @@ function App() {
 	}
 
 	function drawCards() {
-		if(!canvas || !canvasRef.current) {
+		if (!canvas || !canvasRef.current) {
 			return;
 		}
 
 		canvas.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
 		cardData.forEach((card) => {
-			Card({
-				ctx: canvas,
-				x: card.x,
-				y: card.y,
-				width: card.width,
-				height: card.height,
-				title: card.title,
-				text: card.text
-			});
+			CanvasHelper.drawCard(canvas, card);
 		});
 
-		drawLinesBetweenCards(canvas);
+		CanvasHelper.drawLinesBetweenCards(canvas, cardData);
 	}
 
-	function drawLinesBetweenCards(
-		ctx: CanvasRenderingContext2D
-	) {
-		ctx.strokeStyle = "#333"; // Line color
-		ctx.lineWidth = 2; // Line width
-
-		// Create a map for quick access to card positions by title
-		const cardMap = new Map<string, { x: number; y: number; width: number; height: number }>();
-		for (const card of cardData) {
-			cardMap.set(card.title, { x: card.x, y: card.y, width: card.width, height: card.height });
+	function zoomIn() {
+		if (!canvasRef.current || !canvas) {
+			return;
 		}
 
-		// Iterate over each card and draw lines to cards in its `attachedTo` array
-		for (const card of cardData) {
-			const startX = card.x + card.width / 2;
-			const startY = card.y + card.height / 2;
+		canvas.scale(1.1, 1.1);
+		drawCards();
+	}
 
-			for (const attachedTitle of card.attachedTo) {
-				const attachedCard = cardMap.get(attachedTitle);
-				if (attachedCard) {
-					const endX = attachedCard.x + attachedCard.width / 2;
-					const endY = attachedCard.y + attachedCard.height / 2;
-
-					ctx.beginPath();
-					ctx.moveTo(startX, startY);
-					ctx.lineTo(endX, endY);
-					ctx.stroke();
-				}
-			}
+	function zoomOut() {
+		if (!canvasRef.current || !canvas) {
+			return;
 		}
+
+		canvas.scale(0.9, 0.9);
+		drawCards();
 	}
 
 	return (
 		<div>
 			<canvas ref={canvasRef} />
-			<button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Test</button>
+			<Menu zoomIn={zoomIn} zoomOut={zoomOut} />
 		</div>
 	);
 }
