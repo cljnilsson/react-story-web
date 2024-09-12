@@ -1,17 +1,17 @@
-import { useState, useContext } from "react";
+import { useState, useContext, forwardRef } from "react";
 import CanvasContext from "../Context/canvas";
 
-export default function Card({ ix, iy, title, text }: { ix: number; iy: number; title: string; text: string }): JSX.Element {
+// Wrap the Card component with forwardRef
+const Card = forwardRef(function Card({ ix, iy, title, text }: { ix: number; iy: number; title: string; text: string }, ref: React.Ref<HTMLDivElement>): JSX.Element {
 	const [y, setY] = useState(iy);
 	const [x, setX] = useState(ix);
-	//const [selected, setSelected] = useState(false);
 
 	const { lastClicked, setLastClicked } = useContext(CanvasContext);
 
 	const [css, setCss] = useState<React.CSSProperties>({
 		left: `${x}px`,
 		top: `${y}px`,
-		position: "relative"
+		position: "absolute"
 	});
 
 	function onClick() {
@@ -19,10 +19,15 @@ export default function Card({ ix, iy, title, text }: { ix: number; iy: number; 
 	}
 
 	return (
-		<div className={"max-w-sm rounded overflow-hidden shadow-lg " + (lastClicked === title ? "outline outline-2 outline-offset-2" : "")} style={css} onClick={onClick}>
+		<div
+			ref={ref} // Pass the ref here
+			className={"max-w-sm rounded overflow-hidden shadow-lg " + (lastClicked === title ? "outline outline-2 outline-offset-2" : "")}
+			style={css}
+			onClick={onClick}
+		>
 			<img className="w-full" src="/img/card-top.jpg" alt="Sunset in the mountains" />
 			<div className="px-6 py-4">
-				<div className="font-bold text-xl mb-2">The Coldest Sunset</div>
+				<div className="font-bold text-xl mb-2">{title}</div>
 				<p className="text-gray-700 text-base">
 					Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus quia, nulla! Maiores et perferendis eaque, exercitationem praesentium nihil.
 				</p>
@@ -34,4 +39,6 @@ export default function Card({ ix, iy, title, text }: { ix: number; iy: number; 
 			</div>
 		</div>
 	);
-}
+});
+
+export default Card;
