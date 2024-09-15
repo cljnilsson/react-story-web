@@ -1,18 +1,12 @@
 import { CardData } from '../types/cardData';
 
-export default function Menu(): JSX.Element {
-
-	function updateZoom(zoom: number) {
-		//context.scale(zoom, zoom);
-		//CanvasHelper.drawCards(context, canvasRef, cardData);
-	}
-
+export default function Menu({setScale}): JSX.Element {
 	function zoomIn() {
-		updateZoom(1.1);
+		setScale(1.1);
 	}
 
 	function zoomOut() {
-		updateZoom(0.9);
+		setScale(0.9);
 	}
 
     return (

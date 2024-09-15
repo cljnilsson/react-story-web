@@ -1,8 +1,12 @@
 import { useState, useContext, forwardRef, useRef, useEffect } from "react";
 import CanvasContext from "../Context/canvas";
 
+type CardProps = {
+	ix: number, iy: number, title: string, text: string, scale: number, onDrag?: (x: number, y: number) => void 
+}
+
 // Wrap the Card component with forwardRef
-export default function Card({ ix, iy, title, text, onDrag }: { ix: number; iy: number; title: string; text: string, onDrag?: (x: number, y: number) => void }): JSX.Element {
+export default function Card({ ix, iy, title, scale, text, onDrag }: CardProps): JSX.Element {
 	const [y, setY] = useState(iy);
 	const [x, setX] = useState(ix);
 	const [isDragging, setIsDragging] = useState(false);
@@ -19,6 +23,17 @@ export default function Card({ ix, iy, title, text, onDrag }: { ix: number; iy: 
 		position: "absolute",
 		cursor: "grab"
 	});
+
+	console.log(scale);
+
+	useEffect(() => {
+        setCss(prevCss => ({
+            ...prevCss,
+            left: `${x}px`,
+            top: `${y}px`,
+            transform: `scale(${scale})` // Update scaling when scale changes
+        }));
+    }, [x, y, scale]);
 
 	// Handle mouse down (when the user clicks the card)
 	function onMouseDown(e: React.MouseEvent<HTMLDivElement>) {

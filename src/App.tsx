@@ -16,6 +16,7 @@ function App() {
 	];
 
 	const [cards, setCards] = useState<CardData[]>(cardData);
+	const [scale, setScale] = useState(1); // Zoom scale
 	const [lastClicked, setLastClicked] = useState("");
 	const [lines, setLines] = useState<JSX.Element[]>([]); // Store the lines
 	const value = { lastClicked, setLastClicked };
@@ -27,7 +28,7 @@ function App() {
 	// Draw cards dynamically
 	function drawCards() {
 		return cardData.map((card) => (
-			<Card key={card.title} ix={card.x} iy={card.y} title={card.title} text={card.text} onDrag={(newX, newY) => handleCardDrag(card.title, newX, newY)} />
+			<Card key={card.title} ix={card.x} iy={card.y} title={card.title} text={card.text} scale={scale} onDrag={(newX, newY) => handleCardDrag(card.title, newX, newY)} />
 		));
 	}
 
@@ -136,7 +137,7 @@ function App() {
 					{lines} {/* Render the lines */}
 				</CanvasContext.Provider>
 			</main>
-			<Menu />
+			<Menu setScale={setScale} />
 		</div>
 	);
 }
